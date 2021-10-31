@@ -51,19 +51,19 @@ import java.util.Random;
 
 public class BonsaiPotBlock extends BaseBlock implements IGrowable, IWaterLoggable, ITopInfoProvider {
     private final Random rand = new Random();
-    private final VoxelShape shape = VoxelShapes.create(0.065f, 0.005f, 0.065f, 0.935f, 0.185f, 0.935f);
+    private final VoxelShape shape = VoxelShapes.box(0.065f, 0.005f, 0.065f, 0.935f, 0.185f, 0.935f);
     boolean hopping;
 
     public BonsaiPotBlock(boolean hopping) {
-        super(Properties.create(Material.CLAY, MaterialColor.CLAY)
-                .hardnessAndResistance(2.0F)
+        super(Properties.of(Material.CLAY, MaterialColor.CLAY)
+                .strength(2.0F)
                 .sound(SoundType.WOOD)
                 .harvestTool(ToolType.AXE)
                 .harvestLevel(0)
-                .notSolid()
+                .noOcclusion()
         );
 
-        this.setDefaultState(this.stateContainer.getBaseState().with(ColorProperty.COLOR, 8).with(BlockStateProperties.WATERLOGGED, Boolean.FALSE));
+        this.registerDefaultState(this.stateDefinition.any().setValue(ColorProperty.COLOR, 8).setValue(BlockStateProperties.WATERLOGGED, Boolean.FALSE));
         this.hopping = hopping;
     }
 
@@ -83,7 +83,7 @@ public class BonsaiPotBlock extends BaseBlock implements IGrowable, IWaterLoggab
     }
 
     public static BonsaiPotTileEntity getOwnTile(IBlockReader world, BlockPos pos) {
-        TileEntity te = world.getTileEntity(pos);
+        TileEntity te = world.getBlockEntity(pos);
         if(!(te instanceof BonsaiPotTileEntity)) {
             return null;
         }
@@ -92,41 +92,41 @@ public class BonsaiPotBlock extends BaseBlock implements IGrowable, IWaterLoggab
     }
 
     @Override
-    public void onReplaced(BlockState state, World worldIn, BlockPos pos, BlockState newState, boolean isMoving) {
+    public void onRemove(BlockState state, World worldIn, BlockPos pos, BlockState newState, boolean isMoving) {
         BonsaiPotTileEntity tile = getOwnTile(worldIn, pos);
         if(tile == null) {
-            super.onReplaced(state, worldIn, pos, newState, isMoving);
+            super.onRemove(state, worldIn, pos, newState, isMoving);
             return;
         }
 
         if(tile.hasSapling()) {
-            InventoryHelper.spawnItemStack(worldIn, pos.getX(), pos.getY(), pos.getZ(), tile.getSaplingStack());
+            InventoryHelper.dropItemStack(worldIn, pos.getX(), pos.getY(), pos.getZ(), tile.getSaplingStack());
         }
 
         if(tile.hasSoil()) {
-            InventoryHelper.spawnItemStack(worldIn, pos.getX(), pos.getY(), pos.getZ(), tile.getSoilStack());
+            InventoryHelper.dropItemStack(worldIn, pos.getX(), pos.getY(), pos.getZ(), tile.getSoilStack());
         }
 
         if(tile.hasSoil() && tile.hasSapling() && tile.getProgress() >= 1.0f) {
             tile.dropLoot();
         }
 
-        super.onReplaced(state, worldIn, pos, newState, isMoving);
+        super.onRemove(state, worldIn, pos, newState, isMoving);
     }
 
     @Override
-    public ActionResultType onBlockActivated(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand handIn, BlockRayTraceResult hit) {
+    public ActionResultType use(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand handIn, BlockRayTraceResult hit) {
         if (player.isCrouching()) {
             return ActionResultType.FAIL;
         }
 
-        if (!(world.getTileEntity(pos) instanceof BonsaiPotTileEntity)) {
+        if (!(world.getBlockEntity(pos) instanceof BonsaiPotTileEntity)) {
             return ActionResultType.FAIL;
         }
 
-        ItemStack playerStack = player.getHeldItem(Hand.MAIN_HAND);
+        ItemStack playerStack = player.getItemInHand(Hand.MAIN_HAND);
         if(playerStack.isEmpty()) {
-            playerStack = player.getHeldItem(Hand.OFF_HAND);
+            playerStack = player.getItemInHand(Hand.OFF_HAND);
         }
 
         // No items in either of the hands -> no action here
@@ -134,11 +134,11 @@ public class BonsaiPotBlock extends BaseBlock implements IGrowable, IWaterLoggab
             return ActionResultType.FAIL;
         }
 
-        if (world.isRemote) {
+        if (world.isClientSide) {
             return ActionResultType.SUCCESS;
         }
 
-        BonsaiPotTileEntity pot = (BonsaiPotTileEntity)world.getTileEntity(pos);
+        BonsaiPotTileEntity pot = (BonsaiPotTileEntity)world.getBlockEntity(pos);
 
         // Soil?
         SoilInfo soil = ModObjects.soilRecipeHelper.getSoilForItem(world, playerStack);
@@ -157,9 +157,9 @@ public class BonsaiPotBlock extends BaseBlock implements IGrowable, IWaterLoggab
         SaplingInfo sapling = ModObjects.saplingRecipeHelper.getSaplingInfoForItem(world, playerStack);
         if(sapling != null && !pot.hasSapling()) {
             if(!pot.hasSoil()) {
-                SoilInfo randomSoil = ModObjects.soilRecipeHelper.getRandomRecipe(world.getRecipeManager(), world.rand);
+                SoilInfo randomSoil = ModObjects.soilRecipeHelper.getRandomRecipe(world.getRecipeManager(), world.random);
                 if(randomSoil != null) {
-                    player.sendStatusMessage(new TranslationTextComponent("hint.bonsaitrees.pot_has_no_soil", randomSoil.ingredient.getMatchingStacks()[0].getDisplayName()), true);
+                    player.displayClientMessage(new TranslationTextComponent("hint.bonsaitrees.pot_has_no_soil", randomSoil.ingredient.getItems()[0].getDisplayName()), true);
                 } else {
                     Logz.warn("There is no soil available. Please check the config and logs for errors!");
                 }
@@ -169,7 +169,7 @@ public class BonsaiPotBlock extends BaseBlock implements IGrowable, IWaterLoggab
 
             SoilInfo potSoil = ModObjects.soilRecipeHelper.getSoilForItem(world, pot.getSoilStack());
             if(!SoilCompatibility.INSTANCE.canTreeGrowOnSoil(sapling, potSoil)) {
-                player.sendStatusMessage(new TranslationTextComponent("hint.bonsaitrees.incompatible_soil"), true);
+                player.displayClientMessage(new TranslationTextComponent("hint.bonsaitrees.incompatible_soil"), true);
                 return ActionResultType.SUCCESS;
             }
 
@@ -184,7 +184,7 @@ public class BonsaiPotBlock extends BaseBlock implements IGrowable, IWaterLoggab
         }
 
         // Dye?
-        DyeColor blockColor = DyeColor.byId(state.get(ColorProperty.COLOR));
+        DyeColor blockColor = DyeColor.byId(state.getValue(ColorProperty.COLOR));
         if(Tags.Items.DYES.contains(playerStack.getItem())) {
             DyeColor color = DyeColor.getColor(playerStack);
             if(color != null) {
@@ -196,7 +196,7 @@ public class BonsaiPotBlock extends BaseBlock implements IGrowable, IWaterLoggab
                     playerStack.split(1);
                 }
 
-                world.setBlockState(pos, state.with(ColorProperty.COLOR, color.getId()), 2);
+                world.setBlock(pos, state.setValue(ColorProperty.COLOR, color.getId()), 2);
                 return ActionResultType.SUCCESS;
             }
         }
@@ -208,11 +208,11 @@ public class BonsaiPotBlock extends BaseBlock implements IGrowable, IWaterLoggab
                 return ActionResultType.FAIL;
             }
 
-            boolean inWorkingCondition = !playerStack.isDamageable() || playerStack.getDamage() + 1 < playerStack.getMaxDamage();
+            boolean inWorkingCondition = !playerStack.isDamageableItem() || playerStack.getDamageValue() + 1 < playerStack.getMaxDamage();
             if(pot.getProgress() >= 1.0f && inWorkingCondition) {
                 pot.dropLoot();
                 pot.setSapling(pot.saplingStack);
-                playerStack.attemptDamageItem(1, rand, (ServerPlayerEntity) player);
+                playerStack.hurt(1, rand, (ServerPlayerEntity) player);
                 return ActionResultType.SUCCESS;
             } else if(pot.growTicks >= 20 && pot.getProgress() <= 0.75f) {
                 // Not ready and still under 75%
@@ -223,10 +223,10 @@ public class BonsaiPotBlock extends BaseBlock implements IGrowable, IWaterLoggab
             return ActionResultType.SUCCESS;
         }
 
-        boolean playerHasShovel = playerStack.getItem().getHarvestLevel(playerStack, ToolType.SHOVEL, player, Blocks.DIRT.getDefaultState()) != -1;
+        boolean playerHasShovel = playerStack.getItem().getHarvestLevel(playerStack, ToolType.SHOVEL, player, Blocks.DIRT.defaultBlockState()) != -1;
         if(playerHasShovel) {
             if(pot.hasSapling()) {
-                player.sendStatusMessage(new TranslationTextComponent("hint.bonsaitrees.can_not_remove_soil_with_sapling"), true);
+                player.displayClientMessage(new TranslationTextComponent("hint.bonsaitrees.can_not_remove_soil_with_sapling"), true);
                 return ActionResultType.FAIL;
             }
 
@@ -238,26 +238,26 @@ public class BonsaiPotBlock extends BaseBlock implements IGrowable, IWaterLoggab
             return ActionResultType.SUCCESS;
         }
 
-        return super.onBlockActivated(state, world, pos, player, handIn, hit);
+        return super.use(state, world, pos, player, handIn, hit);
     }
 
     @Override
-    public void onBlockPlacedBy(World world, BlockPos pos, BlockState state, @Nullable LivingEntity entity, ItemStack stack) {
-        super.onBlockPlacedBy(world, pos, state, entity, stack);
+    public void setPlacedBy(World world, BlockPos pos, BlockState state, @Nullable LivingEntity entity, ItemStack stack) {
+        super.setPlacedBy(world, pos, state, entity, stack);
 
         CompoundNBT tag = stack.getTag();
         if(tag == null || !tag.contains("bonsaitrees2:color")) {
-            world.setBlockState(pos, state.with(ColorProperty.COLOR, PotColorizer.DEFAULT_COLOR.getId()), 2);
+            world.setBlock(pos, state.setValue(ColorProperty.COLOR, PotColorizer.DEFAULT_COLOR.getId()), 2);
             return;
         }
 
         int color = tag.getInt("bonsaitrees2:color");
-        world.setBlockState(pos, state.with(ColorProperty.COLOR, color), 2);
+        world.setBlock(pos, state.setValue(ColorProperty.COLOR, color), 2);
         return;
     }
 
     private boolean canCutBonsaiTree(ItemStack stack, PlayerEntity player) {
-        if(stack.getItem().getHarvestLevel(stack, ToolType.AXE, player, Blocks.OAK_PLANKS.getDefaultState()) != -1) {
+        if(stack.getItem().getHarvestLevel(stack, ToolType.AXE, player, Blocks.OAK_PLANKS.defaultBlockState()) != -1) {
             return true;
         }
 
@@ -274,8 +274,8 @@ public class BonsaiPotBlock extends BaseBlock implements IGrowable, IWaterLoggab
     }
 
     @Override
-    protected void fillStateContainer(StateContainer.Builder<Block, BlockState> builder) {
-        super.fillStateContainer(builder);
+    protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder) {
+        super.createBlockStateDefinition(builder);
         builder.add(ColorProperty.COLOR);
         builder.add(BlockStateProperties.WATERLOGGED);
     }
@@ -283,28 +283,28 @@ public class BonsaiPotBlock extends BaseBlock implements IGrowable, IWaterLoggab
     @Nullable
     @Override
     public BlockState getStateForPlacement(BlockItemUseContext context) {
-        FluidState fluidState = context.getWorld().getFluidState(context.getPos());
-        return super.getStateForPlacement(context).with(BlockStateProperties.WATERLOGGED, Boolean.valueOf(fluidState.getFluid() == Fluids.WATER));
+        FluidState fluidState = context.getLevel().getFluidState(context.getClickedPos());
+        return super.getStateForPlacement(context).setValue(BlockStateProperties.WATERLOGGED, Boolean.valueOf(fluidState.getType() == Fluids.WATER));
     }
 
     @Override
-    public BlockState updatePostPlacement(BlockState stateIn, Direction facing, BlockState facingState, IWorld worldIn, BlockPos currentPos, BlockPos facingPos) {
-        if (stateIn.get(BlockStateProperties.WATERLOGGED)) {
-            worldIn.getPendingFluidTicks().scheduleTick(currentPos, Fluids.WATER, Fluids.WATER.getTickRate(worldIn));
+    public BlockState updateShape(BlockState stateIn, Direction facing, BlockState facingState, IWorld worldIn, BlockPos currentPos, BlockPos facingPos) {
+        if (stateIn.getValue(BlockStateProperties.WATERLOGGED)) {
+            worldIn.getLiquidTicks().scheduleTick(currentPos, Fluids.WATER, Fluids.WATER.getTickDelay(worldIn));
         }
 
-        return super.updatePostPlacement(stateIn, facing, facingState, worldIn, currentPos, facingPos);
+        return super.updateShape(stateIn, facing, facingState, worldIn, currentPos, facingPos);
     }
 
     @Override
     public boolean propagatesSkylightDown(BlockState state, IBlockReader reader, BlockPos pos) {
-        return !state.get(BlockStateProperties.WATERLOGGED);
+        return !state.getValue(BlockStateProperties.WATERLOGGED);
     }
 
 
     @Override
     public FluidState getFluidState(BlockState state) {
-        return state.get(BlockStateProperties.WATERLOGGED) ? Fluids.WATER.getStillFluidState(false) : super.getFluidState(state);
+        return state.getValue(BlockStateProperties.WATERLOGGED) ? Fluids.WATER.getSource(false) : super.getFluidState(state);
     }
 
     @Override
@@ -314,7 +314,7 @@ public class BonsaiPotBlock extends BaseBlock implements IGrowable, IWaterLoggab
 
 
     @Override
-    public BlockRenderType getRenderType(BlockState state) {
+    public BlockRenderType getRenderShape(BlockState state) {
         return BlockRenderType.MODEL;
     }
 
@@ -322,47 +322,47 @@ public class BonsaiPotBlock extends BaseBlock implements IGrowable, IWaterLoggab
 
 
     @Override
-    public boolean canGrow(IBlockReader world, BlockPos pos, BlockState state, boolean isClient) {
-        if(!(world.getTileEntity(pos) instanceof BonsaiPotTileEntity)) {
+    public boolean isValidBonemealTarget(IBlockReader world, BlockPos pos, BlockState state, boolean isClient) {
+        if(!(world.getBlockEntity(pos) instanceof BonsaiPotTileEntity)) {
             return false;
         }
 
-        BonsaiPotTileEntity tile = (BonsaiPotTileEntity) world.getTileEntity(pos);
+        BonsaiPotTileEntity tile = (BonsaiPotTileEntity) world.getBlockEntity(pos);
         return tile.isGrowing();
     }
 
     @Override
-    public boolean canUseBonemeal(World world, Random rand, BlockPos pos, BlockState state) {
-        if(!(world.getTileEntity(pos) instanceof BonsaiPotTileEntity)) {
+    public boolean isBonemealSuccess(World world, Random rand, BlockPos pos, BlockState state) {
+        if(!(world.getBlockEntity(pos) instanceof BonsaiPotTileEntity)) {
             return false;
         }
 
-        BonsaiPotTileEntity tile = (BonsaiPotTileEntity) world.getTileEntity(pos);
+        BonsaiPotTileEntity tile = (BonsaiPotTileEntity) world.getBlockEntity(pos);
         if(!tile.isGrowing()) {
             return false;
         }
 
-        return (double)world.rand.nextFloat() < 0.45D;
+        return (double)world.random.nextFloat() < 0.45D;
     }
 
     @Override
-    public void grow(ServerWorld world, Random rand, BlockPos pos, BlockState state) {
-        if(!(world.getTileEntity(pos) instanceof BonsaiPotTileEntity)) {
+    public void performBonemeal(ServerWorld world, Random rand, BlockPos pos, BlockState state) {
+        if(!(world.getBlockEntity(pos) instanceof BonsaiPotTileEntity)) {
             return;
         }
 
-        BonsaiPotTileEntity tile = (BonsaiPotTileEntity) world.getTileEntity(pos);
+        BonsaiPotTileEntity tile = (BonsaiPotTileEntity) world.getBlockEntity(pos);
         tile.boostProgress();
     }
 
 
     @Override
     public void addProbeInfo(ProbeMode mode, IProbeInfo probeInfo, PlayerEntity player, World world, BlockState blockState, IProbeHitData data) {
-        if(!(world.getTileEntity(data.getPos()) instanceof BonsaiPotTileEntity)) {
+        if(!(world.getBlockEntity(data.getPos()) instanceof BonsaiPotTileEntity)) {
             return;
         }
 
-        BonsaiPotTileEntity teBonsai = (BonsaiPotTileEntity) world.getTileEntity(data.getPos());
+        BonsaiPotTileEntity teBonsai = (BonsaiPotTileEntity) world.getBlockEntity(data.getPos());
         if(teBonsai.hasSapling()) {
             probeInfo.horizontal().item(teBonsai.saplingStack).itemLabel(teBonsai.saplingStack);
         }

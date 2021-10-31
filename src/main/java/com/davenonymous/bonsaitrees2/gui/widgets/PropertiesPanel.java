@@ -14,13 +14,13 @@ public class PropertiesPanel extends WidgetPanel {
         this.setSize(width, height);
 
         int yOffset = 0;
-        WidgetTextBox modelPanelLabel = new WidgetTextBox(I18n.format("bonsaitrees.gui.tree_creator.label.properties"), 0xC0000000);
+        WidgetTextBox modelPanelLabel = new WidgetTextBox(I18n.get("bonsaitrees.gui.tree_creator.label.properties"), 0xC0000000);
         modelPanelLabel.setDimensions(2, yOffset, width-10, 9);
         this.add(modelPanelLabel);
         yOffset += 9;
 
         yOffset += 5;
-        WidgetTextBox saplingLabel = new WidgetTextBox(I18n.format("bonsaitrees.gui.tree_creator.label.sapling"), 0x90000000);
+        WidgetTextBox saplingLabel = new WidgetTextBox(I18n.get("bonsaitrees.gui.tree_creator.label.sapling"), 0x90000000);
         saplingLabel.setDimensions(2, yOffset, 80, 9);
         this.add(saplingLabel);
         yOffset += 9;
@@ -33,7 +33,7 @@ public class PropertiesPanel extends WidgetPanel {
         yOffset += 8;
 
         yOffset += 3;
-        WidgetTextBox idLabel = new WidgetTextBox(I18n.format("bonsaitrees.gui.tree_creator.label.treeid"), 0x90000000);
+        WidgetTextBox idLabel = new WidgetTextBox(I18n.get("bonsaitrees.gui.tree_creator.label.treeid"), 0x90000000);
         idLabel.setDimensions(2, yOffset, width-10, 9);
         this.add(idLabel);
         yOffset += 9;
@@ -59,7 +59,7 @@ public class PropertiesPanel extends WidgetPanel {
         });
 
         yOffset += 6;
-        WidgetTextBox growLabel = new WidgetTextBox(I18n.format("bonsaitrees.gui.tree_creator.label.growtime"), 0x90000000);
+        WidgetTextBox growLabel = new WidgetTextBox(I18n.get("bonsaitrees.gui.tree_creator.label.growtime"), 0x90000000);
         growLabel.setDimensions(2, yOffset, width-10, 9);
         this.add(growLabel);
         yOffset += 9;
@@ -72,7 +72,7 @@ public class PropertiesPanel extends WidgetPanel {
         yOffset += 12;
 
         yOffset += 6;
-        WidgetTextBox tagsLabel = new WidgetTextBox(I18n.format("bonsaitrees.gui.tree_creator.label.tags"), 0x90000000);
+        WidgetTextBox tagsLabel = new WidgetTextBox(I18n.get("bonsaitrees.gui.tree_creator.label.tags"), 0x90000000);
         tagsLabel.setDimensions(2, yOffset, width-10, 9);
         this.add(tagsLabel);
         yOffset += 9;

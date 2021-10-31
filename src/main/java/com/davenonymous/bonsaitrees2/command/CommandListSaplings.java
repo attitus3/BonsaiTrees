@@ -20,25 +20,25 @@ public class CommandListSaplings implements Command<CommandSource> {
 
     public static ArgumentBuilder<CommandSource, ?> register(CommandDispatcher<CommandSource> dispatcher) {
         return Commands.literal("sapling")
-                .requires(cs -> cs.hasPermissionLevel(0))
+                .requires(cs -> cs.hasPermission(0))
                 .executes(CMD);
     }
 
     @Override
     public int run(CommandContext<CommandSource> context) throws CommandSyntaxException {
-        if(context.getSource().getWorld() == null) {
+        if(context.getSource().getLevel() == null) {
             return 0;
         }
 
-        context.getSource().sendFeedback(new StringTextComponent("Registered saplings:"), false);
+        context.getSource().sendSuccess(new StringTextComponent("Registered saplings:"), false);
 
-        ModObjects.saplingRecipeHelper.getRecipeStream(context.getSource().getWorld().getRecipeManager()).forEach(sapling -> {
+        ModObjects.saplingRecipeHelper.getRecipeStream(context.getSource().getLevel().getRecipeManager()).forEach(sapling -> {
             Set<SoilInfo> soilInfo = SoilCompatibility.INSTANCE.getValidSoilsForSapling(sapling);
             String soils = String.join(", ", soilInfo.stream().map(s -> s.getId().toString()).collect(Collectors.toList()));
             StringTextComponent message = new StringTextComponent(
-                    String.format("%s <- %s [soils: %s]", sapling.getId(), sapling.ingredient.serialize(), soils)
+                    String.format("%s <- %s [soils: %s]", sapling.getId(), sapling.ingredient.toJson(), soils)
             );
-            context.getSource().sendFeedback(message, false);
+            context.getSource().sendSuccess(message, false);
         });
 
         return 0;

@@ -24,10 +24,10 @@ public class BlockStateListEntry extends WidgetListEntry {
 
         this.setSize(columnWidth, 12);
         //TODO Maybe not working
-        String fullText = String.format("%dx %s", count, state.getBlock().getTranslatedName());
+        String fullText = String.format("%dx %s", count, state.getBlock().getName());
         List<ITextComponent> tooltipLines = new ArrayList<>();
         for(Property property : state.getProperties()) {
-            tooltipLines.add(new StringTextComponent(String.format("%s: %s", property.getName(), state.get(property).toString())));
+            tooltipLines.add(new StringTextComponent(String.format("%s: %s", property.getName(), state.getValue(property).toString())));
         }
 
         WidgetTextBox labelWidget = new WidgetTextBox(fullText, 0xA0FFFFFF);

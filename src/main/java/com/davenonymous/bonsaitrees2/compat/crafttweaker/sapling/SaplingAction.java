@@ -14,7 +14,7 @@ public abstract class SaplingAction implements IRuntimeAction {
 
     public SaplingAction(String saplingId) {
         this.saplingId = saplingId;
-        this.sapling = ModObjects.saplingRecipeHelper.getRecipe(CTCraftingTableManager.recipeManager, ResourceLocation.tryCreate(saplingId));
+        this.sapling = ModObjects.saplingRecipeHelper.getRecipe(CTCraftingTableManager.recipeManager, ResourceLocation.tryParse(saplingId));
     }
 
     @Override

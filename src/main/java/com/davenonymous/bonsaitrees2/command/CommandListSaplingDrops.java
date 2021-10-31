@@ -27,34 +27,34 @@ public class CommandListSaplingDrops implements Command<CommandSource> {
                 .then(
                     Commands.argument("type", StringArgumentType.string())
                         .suggests((context, builder) -> {
-                            Stream<String> saplingIds = ModObjects.saplingRecipeHelper.getRecipeStream(context.getSource().getWorld().getRecipeManager()).map(r -> r.getId().toString());
+                            Stream<String> saplingIds = ModObjects.saplingRecipeHelper.getRecipeStream(context.getSource().getLevel().getRecipeManager()).map(r -> r.getId().toString());
                             return ISuggestionProvider.suggest(saplingIds, builder);
                         })
                         .executes(CMD)
                 )
-                .requires(cs -> cs.hasPermissionLevel(0))
+                .requires(cs -> cs.hasPermission(0))
                 .executes(CMD);
     }
 
     @Override
     public int run(CommandContext<CommandSource> context) throws CommandSyntaxException {
-        if(context.getSource().getWorld() == null) {
+        if(context.getSource().getLevel() == null) {
             return 0;
         }
 
         String type = StringArgumentType.getString(context, "type");
-        Optional<SaplingInfo> optSaplingInfo = ModObjects.saplingRecipeHelper.getRecipeStream(context.getSource().getWorld().getRecipeManager()).filter(s -> s.getId().toString().equals(type)).findFirst();
+        Optional<SaplingInfo> optSaplingInfo = ModObjects.saplingRecipeHelper.getRecipeStream(context.getSource().getLevel().getRecipeManager()).filter(s -> s.getId().toString().equals(type)).findFirst();
         if(!optSaplingInfo.isPresent()) {
-            context.getSource().sendFeedback(new StringTextComponent("Unknown bonsai tree: " + type), false);
+            context.getSource().sendSuccess(new StringTextComponent("Unknown bonsai tree: " + type), false);
             return 0;
         }
 
         SaplingInfo saplingInfo = optSaplingInfo.get();
-        context.getSource().sendFeedback(new StringTextComponent("Registered drops for bonsai tree: " + type), false);
+        context.getSource().sendSuccess(new StringTextComponent("Registered drops for bonsai tree: " + type), false);
         for(SaplingDrop drop : saplingInfo.drops) {
-            IFormattableTextComponent stackName = drop.resultStack.getDisplayName().copyRaw();
+            IFormattableTextComponent stackName = drop.resultStack.getDisplayName().plainCopy();
             stackName = stackName.append(new StringTextComponent(String.format(" [chance=%.2f, rolls=%d]", drop.chance, drop.rolls)));
-            context.getSource().sendFeedback(stackName, false);
+            context.getSource().sendSuccess(stackName, false);
         }
 
         return 1;

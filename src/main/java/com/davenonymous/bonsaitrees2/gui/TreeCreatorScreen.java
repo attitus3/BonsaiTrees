@@ -32,7 +32,7 @@ public class TreeCreatorScreen extends WidgetContainerScreen<TreeCreatorContaine
     }
     //TODO Background Layer
     @Override
-    protected void drawGuiContainerBackgroundLayer(MatrixStack matrixStack, float partialTicks, int x, int y) {
+    protected void renderBg(MatrixStack matrixStack, float partialTicks, int x, int y) {
 
     }
 
@@ -42,7 +42,7 @@ public class TreeCreatorScreen extends WidgetContainerScreen<TreeCreatorContaine
         int height = TreeCreatorContainer.HEIGHT;
 
         MultiblockBlockModel model = new MultiblockBlockModel(new ResourceLocation(BonsaiTrees2.MODID, "temporary_tree_model"));
-        model.setBlocksByFloodFill(BonsaiTrees2.proxy.getClientWorld(), this.container.getPos());
+        model.setBlocksByFloodFill(BonsaiTrees2.proxy.getClientWorld(), this.menu.getPos());
 
         GUI gui = new GUI(0, 0, width, height);
 
@@ -72,7 +72,7 @@ public class TreeCreatorScreen extends WidgetContainerScreen<TreeCreatorContaine
 
 
         // Bind all slots to the matching widgets
-        for(Slot slot : this.container.inventorySlots) {
+        for(Slot slot : this.menu.slots) {
             if(!(slot instanceof WidgetSlot)) {
                 continue;
             }

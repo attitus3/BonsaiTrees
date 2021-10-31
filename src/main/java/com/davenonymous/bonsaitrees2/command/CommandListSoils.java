@@ -15,19 +15,19 @@ public class CommandListSoils implements Command<CommandSource> {
 
     public static ArgumentBuilder<CommandSource, ?> register(CommandDispatcher<CommandSource> dispatcher) {
         return Commands.literal("soil")
-                .requires(cs -> cs.hasPermissionLevel(0))
+                .requires(cs -> cs.hasPermission(0))
                 .executes(CMD);
     }
 
     @Override
     public int run(CommandContext<CommandSource> context) throws CommandSyntaxException {
-        if(context.getSource().getWorld() == null) {
+        if(context.getSource().getLevel() == null) {
             return 0;
         }
 
-        context.getSource().sendFeedback(new StringTextComponent("Registered soils:"), false);
-        ModObjects.soilRecipeHelper.getRecipeStream(context.getSource().getWorld().getRecipeManager()).forEach(soil -> {
-            context.getSource().sendFeedback(new StringTextComponent(soil.getId().toString()), false);
+        context.getSource().sendSuccess(new StringTextComponent("Registered soils:"), false);
+        ModObjects.soilRecipeHelper.getRecipeStream(context.getSource().getLevel().getRecipeManager()).forEach(soil -> {
+            context.getSource().sendSuccess(new StringTextComponent(soil.getId().toString()), false);
         });
 
         return 0;

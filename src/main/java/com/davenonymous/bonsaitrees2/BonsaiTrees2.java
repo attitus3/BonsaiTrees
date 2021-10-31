@@ -4,18 +4,18 @@ import com.davenonymous.bonsaitrees2.block.ModObjects;
 import com.davenonymous.bonsaitrees2.compat.top.TOPPlugin;
 import com.davenonymous.bonsaitrees2.config.Config;
 import com.davenonymous.bonsaitrees2.registry.SoilCompatibility;
-import com.davenonymous.bonsaitrees2.setup.ModSetup;
-import com.davenonymous.bonsaitrees2.setup.ProxyClient;
-import com.davenonymous.bonsaitrees2.setup.ProxyServer;
-import com.davenonymous.bonsaitrees2.setup.Registration;
+import com.davenonymous.bonsaitrees2.setup.*;
 import com.davenonymous.bonsaitrees2.util.Logz;
 import com.davenonymous.libnonymous.setup.IProxy;
 import net.minecraft.client.Minecraft;
 import net.minecraft.item.crafting.RecipeManager;
+import net.minecraft.profiler.IProfiler;
+import net.minecraft.resources.IFutureReloadListener;
 import net.minecraft.resources.IReloadableResourceManager;
 import net.minecraft.resources.IResourceManager;
 import net.minecraft.resources.IResourceManagerReloadListener;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.AddReloadListenerEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.DistExecutor;
@@ -30,12 +30,16 @@ import net.minecraftforge.fml.event.server.FMLServerAboutToStartEvent;
 import net.minecraftforge.fml.event.server.FMLServerStartingEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
+import java.util.function.Supplier;
+
 // The value here should match an entry in the META-INF/mods.toml file
 @Mod(BonsaiTrees2.MODID)
 public class BonsaiTrees2 {
     public static final String MODID = "bonsaitrees2";
 
-    public static IProxy proxy = DistExecutor.runForDist(() -> () -> new ProxyClient(), () -> () -> new ProxyServer());
+    public static IProxy proxy = DistExecutor.unsafeRunForDist(() -> ProxyClient::new, () -> ProxyServer::new);
     public static ModSetup setup = new ModSetup();
 
     public BonsaiTrees2() {
@@ -69,10 +73,9 @@ public class BonsaiTrees2 {
     }
 
     @SubscribeEvent(priority = EventPriority.LOW)
-    @Deprecated
     public void startServer(FMLServerAboutToStartEvent event) {
-        IReloadableResourceManager manager = (IReloadableResourceManager) Minecraft.getInstance().getResourceManager();
-        manager.addReloadListener((IResourceManagerReloadListener) resourceManager -> {
+        IReloadableResourceManager manager = (IReloadableResourceManager) event.getServer().getDataPackRegistries().getResourceManager();
+        manager.registerReloadListener((IResourceManagerReloadListener) resourceManager -> {
             RecipeManager recipeManager = event.getServer().getRecipeManager();
             if(!ModObjects.soilRecipeHelper.hasRecipes(recipeManager)) {
                 Logz.warn("Warning. No soils loaded! This mod will not work properly!");

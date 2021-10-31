@@ -5,27 +5,29 @@ import com.davenonymous.bonsaitrees2.command.ModCommands;
 import com.davenonymous.bonsaitrees2.compat.jei.BonsaiTrees2JEIPlugin;
 import com.davenonymous.bonsaitrees2.registry.SoilCompatibility;
 import com.davenonymous.bonsaitrees2.render.TreeModels;
-import net.minecraft.client.Minecraft;
 import net.minecraft.resources.IReloadableResourceManager;
+import net.minecraft.resources.IResourceManager;
 import net.minecraft.resources.IResourceManagerReloadListener;
 import net.minecraftforge.client.event.RecipesUpdatedEvent;
+import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.event.server.FMLServerAboutToStartEvent;
 import net.minecraftforge.fml.event.server.FMLServerStartingEvent;
+import net.minecraftforge.fml.server.ServerLifecycleHooks;
 
 public class ForgeEventHandlers {
     @SubscribeEvent
-    public void serverLoad(FMLServerStartingEvent event) {
-        ModCommands.register(event.getServer().getCommandManager().getDispatcher());
+    public void registerCommands(RegisterCommandsEvent event) {
+        ModCommands.register(event.getDispatcher());
     }
 
     @Deprecated
     @SubscribeEvent(priority = EventPriority.LOW)
     public void startServer(FMLServerAboutToStartEvent event) {
-        IReloadableResourceManager manager = (IReloadableResourceManager) Minecraft.getInstance().getResourceManager();
-        manager.addReloadListener((IResourceManagerReloadListener) resourceManager -> {
+        IReloadableResourceManager manager = (IReloadableResourceManager) event.getServer().getDataPackRegistries().getResourceManager();
+        manager.registerReloadListener((IResourceManagerReloadListener) resourceManager -> {
             SoilCompatibility.INSTANCE.update(event.getServer().getRecipeManager().getRecipes());
         });
     }

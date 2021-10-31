@@ -5,7 +5,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '3.+', changing: true
+        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '4.+', changing: true
     }
 }
 apply plugin: 'net.minecraftforge.gradle'
@@ -14,6 +14,12 @@ apply plugin: 'eclipse'
 apply plugin: 'maven-publish'
 
 repositories {
+	maven { // Jade
+        url "https://www.cursemaven.com"
+        content {
+            includeGroup "curse.maven"
+        }
+    }
     maven { // TOP
         name 'tterrag maven'
         url "https://maven.tterrag.com/"
@@ -22,7 +28,7 @@ repositories {
         name 'jei maven'
         url "https://dvs1.progwml6.com/files/maven"
     }
-    maven {
+	maven {
         name "crafttweaker maven"
         url "https://maven.blamejared.com"
     }
@@ -30,9 +36,9 @@ repositories {
         name 'davenonymous maven'
         url "http://maven.davenonymous.com/repository/maven-releases"
     }
-    maven {
-        name 'hwyla'
-        url "https://maven.tehnut.info"
+	maven {
+        name 'forge'
+        url "https://maven.minecraftforge.net"
     }
 }
 
@@ -48,7 +54,7 @@ minecraft {
     // stable_#            Stables are built at the discretion of the MCP team.
     // Use non-default mappings at your own risk. they may not always work.
     // Simply re-run your setup task after changing the mappings to update your workspace.
-    mappings channel: 'snapshot', version: "${mcp_mappings}"
+    mappings channel: 'official', version: "${minecraft_version}"
     // makeObfSourceJar = false // an Srg named sources jar is made by default. uncomment this to disable.
 
     accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
@@ -116,22 +122,16 @@ dependencies {
 
     compileOnly fg.deobf("mezz.jei:jei-${minecraft_version}:${jei_version}:api")
     runtimeOnly fg.deobf("mezz.jei:jei-${minecraft_version}:${jei_version}")
+	
+    compileOnly "mcjty.theoneprobe:TheOneProbe-1.16:${top_version}:api"
+	
+	compile fg.deobf("com.blamejared.crafttweaker:CraftTweaker-${minecraft_version}:${crafttweaker_version}")
 
-    compile fg.deobf("mcp.mobius.waila:Hwyla:${hwyla_version}")
-
-    compile fg.deobf("mcjty.theoneprobe:TheOneProbe-1.16:${top_version}") {
-        transitive = false
-    }
-
-    compile fg.deobf("com.blamejared.crafttweaker:CraftTweaker-${minecraft_version}:${crafttweaker_version}")
-
-    /*if (findProject(':Libnonymous') != null) {
-        compile project(':Libnonymous')
-    } else {
-        compile fg.deobf ("com.davenonymous.libnonymous:libnonymous-1.15.2:${libnonymous_version}:")
-    }*/
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-
+    //compileOnly "com.davenonymous.libnonymous:libnonymous-1.16.5:${libnonymous_version}:deobf"
+	
+	compile files('libs/libnonymous-1.2.0-deobf.jar')
+	
+	implementation fg.deobf("curse.maven:jade-324717:3389760")
 }
 
 allprojects {
@@ -191,7 +191,7 @@ publishing {
             }
         }
         maven {
-            name = "davenonymous maven"
+            name = "davenonymous_maven"
             url = uri("http://maven.davenonymous.com/repository/maven-releases")
             credentials {
                 username = "davenonymous"

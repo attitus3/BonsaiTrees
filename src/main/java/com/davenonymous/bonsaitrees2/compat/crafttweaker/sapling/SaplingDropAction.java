@@ -13,7 +13,7 @@ public abstract class SaplingDropAction extends SaplingAction {
         super(saplingId);
         this.drop = drop;
         if(this.sapling != null) {
-            this.saplingDrop = this.sapling.drops.stream().filter(d -> d.resultStack.isItemEqual(this.drop.getInternal())).findFirst().orElse(null);
+            this.saplingDrop = this.sapling.drops.stream().filter(d -> d.resultStack.sameItem(this.drop.getInternal())).findFirst().orElse(null);
         }
     }
 

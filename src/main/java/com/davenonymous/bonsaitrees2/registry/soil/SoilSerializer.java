@@ -20,8 +20,8 @@ public class SoilSerializer extends ForgeRegistryEntry<IRecipeSerializer<?>> imp
     }
 
     @Override
-    public SoilInfo read(ResourceLocation recipeId, JsonObject json) {
-        final Ingredient soil = Ingredient.deserialize(json.getAsJsonObject("soil"));
+    public SoilInfo fromJson(ResourceLocation recipeId, JsonObject json) {
+        final Ingredient soil = Ingredient.fromJson(json.getAsJsonObject("soil"));
         final BlockState renderState = BlockStateSerializationHelper.deserializeBlockState(json.getAsJsonObject("display"));
 
         float tickModifier = 1.0f;
@@ -51,8 +51,8 @@ public class SoilSerializer extends ForgeRegistryEntry<IRecipeSerializer<?>> imp
 
     @Nullable
     @Override
-    public SoilInfo read(ResourceLocation recipeId, PacketBuffer buffer) {
-        final Ingredient ingredient = Ingredient.read(buffer);
+    public SoilInfo fromNetwork(ResourceLocation recipeId, PacketBuffer buffer) {
+        final Ingredient ingredient = Ingredient.fromNetwork(buffer);
         final BlockState renderState = BlockStateSerializationHelper.deserializeBlockState(buffer);
         final float tickModifier = buffer.readFloat();
 
@@ -60,20 +60,20 @@ public class SoilSerializer extends ForgeRegistryEntry<IRecipeSerializer<?>> imp
 
         final int tagCount = buffer.readInt();
         for(int i = 0; i < tagCount; i++) {
-            result.addTag(buffer.readString());
+            result.addTag(buffer.readUtf());
         }
 
         return result;
     }
 
     @Override
-    public void write(PacketBuffer buffer, SoilInfo soil) {
-        soil.ingredient.write(buffer);
+    public void toNetwork(PacketBuffer buffer, SoilInfo soil) {
+        soil.ingredient.toNetwork(buffer);
         BlockStateSerializationHelper.serializeBlockState(buffer, soil.renderState);
         buffer.writeFloat(soil.tickModifier);
         buffer.writeInt(soil.tags.size());
         for(String tag : soil.tags) {
-            buffer.writeString(tag);
+            buffer.writeUtf(tag);
         }
 
     }

@@ -22,7 +22,7 @@ public class PotColorizer {
                 return PotColorizer.DEFAULT_COLOR.getColorValue();
             }
 
-            int color = state.get(ColorProperty.COLOR);
+            int color = state.getValue(ColorProperty.COLOR);
             int rgb = DyeColor.byId(color).getColorValue();
             return rgb;
         };

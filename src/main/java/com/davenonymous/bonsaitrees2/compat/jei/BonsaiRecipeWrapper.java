@@ -32,6 +32,7 @@ import net.minecraft.client.settings.AmbientOcclusionStatus;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.vector.Quaternion;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.TranslationTextComponent;
@@ -48,7 +49,7 @@ public class BonsaiRecipeWrapper implements IRecipeCategoryExtension, ITooltipCa
         this.sapling = sapling;
     }
 
-    public void drawInfo(int recipeWidth, int recipeHeight, double mouseX, double mouseY) {
+    public void drawInfo(int recipeWidth, int recipeHeight, MatrixStack stack, double mouseX, double mouseY) {
         MultiblockBlockModel model = TreeModels.get(sapling.getId());
         if(model == null) {
             return;
@@ -56,7 +57,7 @@ public class BonsaiRecipeWrapper implements IRecipeCategoryExtension, ITooltipCa
 
         float angle = RenderTickCounter.renderTicks * 45.0f / 128.0f;
 
-        RenderSystem.pushMatrix();
+        stack.pushPose();
 
         // Init RenderSystem
         RenderSystem.enableAlphaTest();
@@ -69,13 +70,13 @@ public class BonsaiRecipeWrapper implements IRecipeCategoryExtension, ITooltipCa
 
         RenderSystem.disableFog();
         RenderSystem.disableLighting();
-        RenderHelper.disableStandardItemLighting();
+        RenderHelper.turnOff();
 
         RenderSystem.enableBlend();
         RenderSystem.enableCull();
         RenderSystem.enableAlphaTest();
 
-        if (Minecraft.isAmbientOcclusionEnabled()) {
+        if (Minecraft.useAmbientOcclusion()) {
             RenderSystem.shadeModel(GL11.GL_SMOOTH);
         } else {
             RenderSystem.shadeModel(GL11.GL_FLAT);
@@ -83,58 +84,58 @@ public class BonsaiRecipeWrapper implements IRecipeCategoryExtension, ITooltipCa
 
         RenderSystem.disableRescaleNormal();
 
-        RenderSystem.translatef(0F, 0F, 216.5F);
+        stack.translate(0F, 0F, 216.5F);
 
 
-        RenderSystem.translatef(50.0f, 20.0f, 0.0f);
+        stack.translate(50.0f, 20.0f, 0.0f);
 
         // Shift it a bit down so one can properly see 3d
-        RenderSystem.rotatef(-25.0f, 1.0f, 0.0f, 0.0f);
+        stack.mulPose(new Quaternion(-25.0f, 1.0f, 0.0f, 0.0f));
 
         // Rotate per our calculated time
-        RenderSystem.rotatef(angle, 0.0f, 1.0f, 0.0f);
+        stack.mulPose(new Quaternion(angle, 0.0f, 1.0f, 0.0f));
 
-        double scale = model.getScaleRatio(true);
-        RenderSystem.scaled(scale, scale, scale);
+        float scale = (float) model.getScaleRatio(true);
+        stack.scale(scale, scale, scale);
 
-        double progress = 40.0d;
-        RenderSystem.scaled(progress, progress, progress);
+        float progress = 40.0f;
+        stack.scale(progress, progress, progress);
 
 
 
-        RenderSystem.rotatef(180.0f, 1.0f, 0.0f, 0.0f);
+        stack.mulPose(new Quaternion(180.0f, 1.0f, 0.0f, 0.0f));
 
-        RenderSystem.translatef(
+        stack.translate(
                 (model.width + 1) / -2.0f,
                 (model.height + 1) / -2.0f,
                 (model.depth + 1) / -2.0f
         );
 
         TextureManager textureManager = Minecraft.getInstance().getTextureManager();
-        textureManager.bindTexture(AtlasTexture.LOCATION_BLOCKS_TEXTURE);
-        textureManager.getTexture(AtlasTexture.LOCATION_BLOCKS_TEXTURE).setBlurMipmapDirect(false, false);
+        textureManager.bind(AtlasTexture.LOCATION_BLOCKS);
+        textureManager.getTexture(AtlasTexture.LOCATION_BLOCKS).setFilter(false, false);
 
         GL11.glFrontFace(GL11.GL_CW);
 
         Tessellator tessellator = Tessellator.getInstance();
-        BufferBuilder builder = tessellator.getBuffer();
-        IRenderTypeBuffer buffer = IRenderTypeBuffer.getImpl(builder);
+        BufferBuilder builder = tessellator.getBuilder();
+        IRenderTypeBuffer buffer = IRenderTypeBuffer.immediate(builder);
 
-        AmbientOcclusionStatus before = Minecraft.getInstance().gameSettings.ambientOcclusionStatus;
-        Minecraft.getInstance().gameSettings.ambientOcclusionStatus = AmbientOcclusionStatus.OFF;
-        MultiblockBlockModelRenderer.renderModel(model, new MatrixStack(), buffer, 0xff0000,  OverlayTexture.NO_OVERLAY, BonsaiTrees2.proxy.getClientWorld(), BonsaiTrees2.proxy.getClientPlayer().getPosition());
-        Minecraft.getInstance().gameSettings.ambientOcclusionStatus = before;
+        AmbientOcclusionStatus before = Minecraft.getInstance().options.ambientOcclusion;
+        Minecraft.getInstance().options.ambientOcclusion = AmbientOcclusionStatus.OFF;
+        MultiblockBlockModelRenderer.renderModel(model, new MatrixStack(), buffer, 0xff0000,  OverlayTexture.NO_OVERLAY, BonsaiTrees2.proxy.getClientWorld(), BonsaiTrees2.proxy.getClientPlayer().blockPosition());
+        Minecraft.getInstance().options.ambientOcclusion = before;
 
-        textureManager.bindTexture(AtlasTexture.LOCATION_BLOCKS_TEXTURE);
-        textureManager.getTexture(AtlasTexture.LOCATION_BLOCKS_TEXTURE).restoreLastBlurMipmap();
+        textureManager.bind(AtlasTexture.LOCATION_BLOCKS);
+        textureManager.getTexture(AtlasTexture.LOCATION_BLOCKS).restoreLastBlurMipmap();
 
-        ((IRenderTypeBuffer.Impl) buffer).finish();
+        ((IRenderTypeBuffer.Impl) buffer).endBatch();
 
         GL11.glFrontFace(GL11.GL_CCW);
 
         RenderSystem.disableBlend();
 
-        RenderSystem.popMatrix();
+        stack.popPose();
     }
 
     @Override
@@ -147,18 +148,18 @@ public class BonsaiRecipeWrapper implements IRecipeCategoryExtension, ITooltipCa
             if(slot == 0) {
                 // Sapling slot
                 String timeToGrow = TickTimeHelper.getDuration(sapling.baseTicks);
-                tooltip.add(tooltip.size()-1, new TranslationTextComponent(TextFormatting.YELLOW + I18n.format("bonsaitrees.jei.category.sapling.growtime", timeToGrow)));
+                tooltip.add(tooltip.size()-1, new TranslationTextComponent(TextFormatting.YELLOW + I18n.get("bonsaitrees.jei.category.sapling.growtime", timeToGrow)));
             }
 
             if(slot == 1) {
                 float tickModifier = tickModifiers.getOrDefault(stack.getItem().getRegistryName(), 1.0f);
                 String timeToGrow = TickTimeHelper.getDuration((int) (sapling.baseTicks * tickModifier));
-                tooltip.add(tooltip.size()-1, new TranslationTextComponent(TextFormatting.YELLOW + I18n.format("bonsaitrees.jei.category.sapling.soiltime", timeToGrow)));
+                tooltip.add(tooltip.size()-1, new TranslationTextComponent(TextFormatting.YELLOW + I18n.get("bonsaitrees.jei.category.sapling.soiltime", timeToGrow)));
             }
         } else {
             // Some output slot
             if(Config.SHOW_CHANCE_IN_JEI.get()) {
-                tooltip.add(tooltip.size() - 1, new TranslationTextComponent(TextFormatting.YELLOW + I18n.format("bonsaitrees.jei.category.growing.chance", (int) (slotChances[slot - 2] * 100))));
+                tooltip.add(tooltip.size() - 1, new TranslationTextComponent(TextFormatting.YELLOW + I18n.get("bonsaitrees.jei.category.growing.chance", (int) (slotChances[slot - 2] * 100))));
             }
         }
     }
@@ -167,12 +168,12 @@ public class BonsaiRecipeWrapper implements IRecipeCategoryExtension, ITooltipCa
     public void setIngredients(IIngredients iIngredients) {
         //sapling.ingredient
         List<List<ItemStack>> inputs = new ArrayList<>();
-        inputs.add(Collections.singletonList(sapling.ingredient.getMatchingStacks()[0]));
+        inputs.add(Collections.singletonList(sapling.ingredient.getItems()[0]));
 
         tickModifiers = new HashMap<>();
         List<ItemStack> soilStacks = new ArrayList<>();
         for(SoilInfo soil : SoilCompatibility.INSTANCE.getValidSoilsForSapling(sapling)) {
-            ItemStack representation = soil.ingredient.getMatchingStacks()[0];
+            ItemStack representation = soil.ingredient.getItems()[0];
             tickModifiers.put(representation.getItem().getRegistryName(), soil.getTickModifier());
             soilStacks.add(representation);
         }

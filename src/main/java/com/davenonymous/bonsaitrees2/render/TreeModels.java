@@ -19,7 +19,7 @@ public class TreeModels {
     private static HashMap<ResourceLocation, MultiblockBlockModel> treeModels;
 
     public static void init() {
-        Collection<ResourceLocation> resources = Minecraft.getInstance().getResourceManager().getAllResourceLocations("models/tree", p -> p.endsWith(".json"));
+        Collection<ResourceLocation> resources = Minecraft.getInstance().getResourceManager().listResources("models/tree", p -> p.endsWith(".json"));
 
         ArrayList<MultiblockBlockModel> models = new ArrayList<>();
         for (ResourceLocation resource : resources) {

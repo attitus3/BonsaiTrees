@@ -25,7 +25,7 @@ public class HoppingBonsaiPotTileEntity extends BonsaiPotTileEntity {
             this.updateInfoObjects();
         }
 
-        if (this.world.isRemote || this.saplingInfo == null) {
+        if (this.level.isClientSide || this.saplingInfo == null) {
             return;
         }
 
@@ -34,12 +34,12 @@ public class HoppingBonsaiPotTileEntity extends BonsaiPotTileEntity {
         }
 
         if (getProgress() >= 1.0f) {
-            TileEntity below = getWorld().getTileEntity(getPos().down());
+            TileEntity below = getLevel().getBlockEntity(getBlockPos().below());
             if(below != null) {
                 LazyOptional<IItemHandler> cap = below.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, Direction.UP);
 
                 if (cap.isPresent()) {
-                    List<ItemStack> drops = this.saplingInfo.getRandomizedDrops(this.world.rand);
+                    List<ItemStack> drops = this.saplingInfo.getRandomizedDrops(this.level.random);
 
                     IItemHandler targetHandler = cap.orElse(null);
                     for (ItemStack drop : drops) {

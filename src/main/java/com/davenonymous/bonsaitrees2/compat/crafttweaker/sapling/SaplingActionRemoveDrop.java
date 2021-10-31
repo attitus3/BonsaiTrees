@@ -16,7 +16,7 @@ public class SaplingActionRemoveDrop extends SaplingAction {
 
         this.drop = drop;
         if(this.sapling != null) {
-            this.originalDrops = this.sapling.drops.stream().filter(d -> d.resultStack.isItemEqual(drop.getInternal())).collect(Collectors.toList());
+            this.originalDrops = this.sapling.drops.stream().filter(d -> d.resultStack.sameItem(drop.getInternal())).collect(Collectors.toList());
         }
     }
 

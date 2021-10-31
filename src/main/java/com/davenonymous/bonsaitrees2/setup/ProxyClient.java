@@ -22,7 +22,7 @@ public class ProxyClient implements IProxy {
         ClientRegistry.bindTileEntityRenderer(Registration.HOPPING_BONSAIPOT_TILE.get(), tileEntityRendererDispatcher -> new BonsaiPotTileEntityRenderer(tileEntityRendererDispatcher));
 
         TreeModels.init();
-        ScreenManager.registerFactory(Registration.TREE_CREATOR_CONTAINER.get(), TreeCreatorScreen::new);
+        ScreenManager.register(Registration.TREE_CREATOR_CONTAINER.get(), TreeCreatorScreen::new);
 
         ModList.get().getModContainerById(BonsaiTrees2.MODID).ifPresent(c -> c.registerExtensionPoint(ExtensionPoint.CONFIGGUIFACTORY, () -> (mc, parent) -> {
             return new WidgetGuiConfig(parent, Config.COMMON_CONFIG, Config.CLIENT_CONFIG);
@@ -31,7 +31,7 @@ public class ProxyClient implements IProxy {
 
     @Override
     public World getClientWorld() {
-        return Minecraft.getInstance().world;
+        return Minecraft.getInstance().level;
     }
 
     @Override

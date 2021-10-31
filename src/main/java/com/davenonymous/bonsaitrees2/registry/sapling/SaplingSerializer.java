@@ -37,13 +37,13 @@ public class SaplingSerializer extends ForgeRegistryEntry<IRecipeSerializer<?>> 
     }
 
     @Override
-    public SaplingInfo read(ResourceLocation recipeId, JsonObject json) {
+    public SaplingInfo fromJson(ResourceLocation recipeId, JsonObject json) {
         if(!isValidIngredient(json.getAsJsonObject("sapling"))) {
             Logz.info(mark, "Skipping recipe '{}', contains unknown sapling.", recipeId);
             return null;
         }
 
-        final Ingredient sapling = Ingredient.deserialize(json.getAsJsonObject("sapling"));
+        final Ingredient sapling = Ingredient.fromJson(json.getAsJsonObject("sapling"));
 
         int baseTicks = 200;
         if(json.has("ticks")) {
@@ -94,8 +94,8 @@ public class SaplingSerializer extends ForgeRegistryEntry<IRecipeSerializer<?>> 
 
     @Nullable
     @Override
-    public SaplingInfo read(ResourceLocation recipeId, PacketBuffer buffer) {
-        final Ingredient ingredient = Ingredient.read(buffer);
+    public SaplingInfo fromNetwork(ResourceLocation recipeId, PacketBuffer buffer) {
+        final Ingredient ingredient = Ingredient.fromNetwork(buffer);
         final int baseTicks = buffer.readInt();
 
         SaplingInfo result = new SaplingInfo(recipeId, ingredient, baseTicks);
@@ -107,15 +107,15 @@ public class SaplingSerializer extends ForgeRegistryEntry<IRecipeSerializer<?>> 
 
         final int tagCount = buffer.readInt();
         for(int i = 0; i < tagCount; i++) {
-            result.addTag(buffer.readString());
+            result.addTag(buffer.readUtf());
         }
 
         return result;
     }
 
     @Override
-    public void write(PacketBuffer buffer, SaplingInfo sapling) {
-        sapling.ingredient.write(buffer);
+    public void toNetwork(PacketBuffer buffer, SaplingInfo sapling) {
+        sapling.ingredient.toNetwork(buffer);
         buffer.writeInt(sapling.baseTicks);
         buffer.writeInt(sapling.drops.size());
         for(SaplingDrop drop : sapling.drops) {
@@ -123,7 +123,7 @@ public class SaplingSerializer extends ForgeRegistryEntry<IRecipeSerializer<?>> 
         }
         buffer.writeInt(sapling.tags.size());
         for(String tag : sapling.tags) {
-            buffer.writeString(tag);
+            buffer.writeUtf(tag);
         }
     }
 }

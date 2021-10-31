@@ -2,7 +2,7 @@ package com.davenonymous.bonsaitrees2.registry.sapling;
 
 import com.davenonymous.bonsaitrees2.block.ModObjects;
 import com.davenonymous.libnonymous.utils.GsonHelper;
-import com.davenonymous.libnonymous.utils.RecipeData;
+import com.davenonymous.libnonymous.utils.RecipeDataBase;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import net.minecraft.inventory.IInventory;
@@ -15,10 +15,10 @@ import net.minecraft.world.World;
 
 import java.util.*;
 
-public class SaplingInfo extends RecipeData {
-    private final ResourceLocation id;
+public class SaplingInfo extends RecipeDataBase {
 
-    public Ingredient ingredient;
+	public Ingredient ingredient;
+    public Ingredient ingredient1;
     public int baseTicks;
 
     public ItemStack sapling;
@@ -26,36 +26,11 @@ public class SaplingInfo extends RecipeData {
     public Set<String> tags;
 
     public SaplingInfo(ResourceLocation id, Ingredient ingredient, int baseTicks) {
-        this.id = id;
+        super(id);
         this.ingredient = ingredient;
         this.baseTicks = baseTicks;
         this.drops = new ArrayList<>();
         this.tags = new HashSet<>();
-    }
-    //TODO from here
-    @Override
-    public boolean matches(IInventory inv, World worldIn) {
-        return false;
-    }
-
-    @Override
-    public ItemStack getCraftingResult(IInventory inv) {
-        return null;
-    }
-
-    @Override
-    public boolean canFit(int width, int height) {
-        return false;
-    }
-
-    @Override
-    public ItemStack getRecipeOutput() {
-        return null;
-    }
-    //TODO till here
-    @Override
-    public ResourceLocation getId() {
-        return id;
     }
 
     @Override

@@ -19,19 +19,19 @@ public class SaplingDrop {
     }
 
     public SaplingDrop(JsonObject json) {
-        this.resultStack = new ItemStack(JSONUtils.getItem(json.getAsJsonObject("result"), "item"), 1);
+        this.resultStack = new ItemStack(JSONUtils.getAsItem(json.getAsJsonObject("result"), "item"), 1);
         this.chance = json.get("chance").getAsFloat();
         this.rolls = json.get("rolls").getAsInt();
     }
 
     public SaplingDrop(PacketBuffer buffer) {
-        this.resultStack = buffer.readItemStack();
+        this.resultStack = buffer.readItem();
         this.chance = buffer.readFloat();
         this.rolls = buffer.readInt();
     }
 
     public void write(PacketBuffer buffer) {
-        buffer.writeItemStack(this.resultStack);
+        buffer.writeItem(this.resultStack);
         buffer.writeFloat(this.chance);
         buffer.writeInt(this.rolls);
     }

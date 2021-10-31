@@ -32,7 +32,7 @@ public class BonsaiRecipeCategory implements IRecipeCategory<BonsaiRecipeWrapper
 
     @Override
     public String getTitle() {
-        return I18n.format("bonsaitrees2.title");
+        return I18n.get("bonsaitrees2.title");
     }
 
     @Override

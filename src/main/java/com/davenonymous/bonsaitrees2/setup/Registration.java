@@ -34,12 +34,12 @@ public class Registration {
     public static final RegistryObject<BonsaiPotBlock> BONSAIPOT = BLOCKS.register("bonsaipot", () -> new BonsaiPotBlock(false));
     public static final RegistryObject<BonsaiPotBlock> HOPPING_BONSAIPOT = BLOCKS.register("hopping_bonsaipot", () -> new BonsaiPotBlock(true));
 
-    private static Item.Properties properties = new Item.Properties().group(ItemGroup.DECORATIONS);
+    private static Item.Properties properties = new Item.Properties().tab(ItemGroup.TAB_DECORATIONS);
     public static final RegistryObject<Item> BONSAIPOT_ITEM = ITEMS.register("bonsaipot", () -> new BlockItem(BONSAIPOT.get(), properties));
     public static final RegistryObject<Item> HOPPING_BONSAIPOT_ITEM = ITEMS.register("hopping_bonsaipot", () -> new BlockItem(HOPPING_BONSAIPOT.get(), properties));
 
-    public static final RegistryObject<TileEntityType<BonsaiPotTileEntity>> BONSAIPOT_TILE = TILES.register("bonsaipot", () -> TileEntityType.Builder.create(BonsaiPotTileEntity::new, BONSAIPOT.get()).build(null));
-    public static final RegistryObject<TileEntityType<HoppingBonsaiPotTileEntity>> HOPPING_BONSAIPOT_TILE = TILES.register("hopping_bonsaipot", () -> TileEntityType.Builder.create(HoppingBonsaiPotTileEntity::new, HOPPING_BONSAIPOT.get()).build(null));
+    public static final RegistryObject<TileEntityType<BonsaiPotTileEntity>> BONSAIPOT_TILE = TILES.register("bonsaipot", () -> TileEntityType.Builder.of(BonsaiPotTileEntity::new, BONSAIPOT.get()).build(null));
+    public static final RegistryObject<TileEntityType<HoppingBonsaiPotTileEntity>> HOPPING_BONSAIPOT_TILE = TILES.register("hopping_bonsaipot", () -> TileEntityType.Builder.of(HoppingBonsaiPotTileEntity::new, HOPPING_BONSAIPOT.get()).build(null));
 
     public static final RegistryObject<ContainerType<TreeCreatorContainer>> TREE_CREATOR_CONTAINER = CONTAINERS.register("tree_creator", () -> IForgeContainerType.create((windowId, inv, data) -> {
         BlockPos pos = data.readBlockPos();

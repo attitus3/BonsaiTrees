@@ -1,4 +1,4 @@
-package com.davenonymous.bonsaitrees2.compat.hwyla;
+package com.davenonymous.bonsaitrees2.compat.jade;
 
 import com.davenonymous.bonsaitrees2.block.BonsaiPotTileEntity;
 import mcp.mobius.waila.api.IComponentProvider;
@@ -23,13 +23,13 @@ public class BonsaiPotComponentProvider implements IComponentProvider {
         if(teBonsai.hasSapling()) {
             ItemStack representation = teBonsai.getSaplingStack();
             if(representation != null) {
-                tooltip.add(new StringTextComponent(representation.getDisplayName().getStyle().applyFormatting(TextFormatting.GRAY).toString()));
+                tooltip.add(new StringTextComponent(representation.getDisplayName().getStyle().applyFormat(TextFormatting.GRAY).toString()));
             }
         }
 
         if(teBonsai.hasSoil()) {
             ItemStack representation = teBonsai.getSoilStack();
-            tooltip.add(new StringTextComponent(representation.getDisplayName().getStyle().applyFormatting(TextFormatting.GRAY).toString()));
+            tooltip.add(new StringTextComponent(representation.getDisplayName().getStyle().applyFormat(TextFormatting.GRAY).toString()));
         }
 
         if(teBonsai.hasSapling()) {

@@ -20,15 +20,15 @@ public class DropsPanel extends WidgetPanelWithValue<List<SaplingDrop>> {
         this.setSize(width, height);
 
         int yOffset = 0;
-        WidgetTextBox dropLabel = new WidgetTextBox(I18n.format("bonsaitrees.gui.tree_creator.label.drop"), 0xC0000000);
+        WidgetTextBox dropLabel = new WidgetTextBox(I18n.get("bonsaitrees.gui.tree_creator.label.drop"), 0xC0000000);
         dropLabel.setDimensions(2, yOffset, 25, 9);
         this.add(dropLabel);
 
-        WidgetTextBox rollsLabel = new WidgetTextBox(I18n.format("bonsaitrees.gui.tree_creator.label.rolls"), 0xC0000000);
+        WidgetTextBox rollsLabel = new WidgetTextBox(I18n.get("bonsaitrees.gui.tree_creator.label.rolls"), 0xC0000000);
         rollsLabel.setDimensions(30, yOffset, 35, 9);
         this.add(rollsLabel);
 
-        WidgetTextBox chanceLabel = new WidgetTextBox(I18n.format("bonsaitrees.gui.tree_creator.label.chance"), 0xC0000000);
+        WidgetTextBox chanceLabel = new WidgetTextBox(I18n.get("bonsaitrees.gui.tree_creator.label.chance"), 0xC0000000);
         chanceLabel.setDimensions(81, yOffset, 40, 9);
         this.add(chanceLabel);
 

@@ -1,4 +1,4 @@
-package com.davenonymous.bonsaitrees2.compat.hwyla;
+package com.davenonymous.bonsaitrees2.compat.jade;
 
 import com.davenonymous.bonsaitrees2.block.BonsaiPotBlock;
 import mcp.mobius.waila.api.IRegistrar;
@@ -7,7 +7,7 @@ import mcp.mobius.waila.api.TooltipPosition;
 import mcp.mobius.waila.api.WailaPlugin;
 
 @WailaPlugin
-public class BonsaiTrees2HWYLAPlugin implements IWailaPlugin {
+public class BonsaiTrees2JadePlugin implements IWailaPlugin {
 
     @Override
     public void register(IRegistrar iRegistrar) {

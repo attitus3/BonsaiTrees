@@ -29,7 +29,7 @@ public class TreeCreatorContainer extends WidgetContainer {
     }
 
     @Override
-    public boolean canInteractWith(PlayerEntity playerIn) {
+    public boolean stillValid(PlayerEntity playerIn) {
         return true;
     }
 

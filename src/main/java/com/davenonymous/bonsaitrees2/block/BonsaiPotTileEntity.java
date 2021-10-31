@@ -56,7 +56,7 @@ public class BonsaiPotTileEntity extends BaseTileEntity {
     protected void updateInfoObjects() {
         this.saplingInfo = null;
         if(this.saplingStack != null && !this.saplingStack.isEmpty()) {
-            this.saplingInfo = ModObjects.saplingRecipeHelper.getSaplingInfoForItem(world, this.saplingStack);
+            this.saplingInfo = ModObjects.saplingRecipeHelper.getSaplingInfoForItem(level, this.saplingStack);
             if(this.saplingInfo != null) { // This shouldn't happen, but does in case of Immersive Portals?!
                 this.treeId = this.saplingInfo.getId();
             }
@@ -64,7 +64,7 @@ public class BonsaiPotTileEntity extends BaseTileEntity {
 
         this.soilInfo = null;
         if(this.soilStack != null && !this.soilStack.isEmpty()) {
-            this.soilInfo = ModObjects.soilRecipeHelper.getSoilForItem(world, this.soilStack);
+            this.soilInfo = ModObjects.soilRecipeHelper.getSoilForItem(level, this.soilStack);
         }
 
         if(this.soilInfo != null && this.saplingInfo != null) {
@@ -95,9 +95,9 @@ public class BonsaiPotTileEntity extends BaseTileEntity {
     public void setSapling(ItemStack saplingStack) {
         this.saplingStack = saplingStack.copy();
         this.growTicks = 0;
-        this.modelRotation = world.rand.nextInt(4);
+        this.modelRotation = level.random.nextInt(4);
         this.updateInfoObjects();
-        this.markDirty();
+        this.setChanged();
         this.notifyClients();
     }
 
@@ -127,13 +127,13 @@ public class BonsaiPotTileEntity extends BaseTileEntity {
         }
 
         BlockItem soilBlock = (BlockItem)soilStack.getItem();
-        return soilBlock.getBlock().getDefaultState();
+        return soilBlock.getBlock().defaultBlockState();
     }
 
     public void setSoil(ItemStack soilStack) {
         this.soilStack = soilStack.copy();
         this.updateInfoObjects();
-        this.markDirty();
+        this.setChanged();
         this.notifyClients();
     }
 
@@ -189,17 +189,17 @@ public class BonsaiPotTileEntity extends BaseTileEntity {
     }
 
     private boolean canGrowIntoBlockAbove() {
-        if(world == null) {
+        if(level == null) {
             return false;
         }
 
-        BlockPos upPos = pos.up();
-        if(world.isAirBlock(upPos)) {
+        BlockPos upPos = worldPosition.above();
+        if(level.isEmptyBlock(upPos)) {
             return true;
         }
 
-        BlockState blockState = world.getBlockState(upPos);
-        VoxelShape collisionShape = blockState.getCollisionShape(world, upPos);
+        BlockState blockState = level.getBlockState(upPos);
+        VoxelShape collisionShape = blockState.getCollisionShape(level, upPos);
         if (collisionShape == null || collisionShape.equals(VoxelShapes.empty())) {
             return true;
         }
@@ -209,7 +209,7 @@ public class BonsaiPotTileEntity extends BaseTileEntity {
 
     public void setGrowTicks(int growTicks) {
         this.growTicks = growTicks;
-        this.markDirty();
+        this.setChanged();
     }
 
     public void boostProgress() {
@@ -229,12 +229,12 @@ public class BonsaiPotTileEntity extends BaseTileEntity {
     protected void initialize() {
         super.initialize();
 
-        if(world == null || this.world.isRemote) {
+        if(level == null || this.level.isClientSide) {
             return;
         }
 
         if(this.modelRotation == -1) {
-            this.modelRotation = this.world.rand.nextInt(4);
+            this.modelRotation = this.level.random.nextInt(4);
         }
     }
 
@@ -268,7 +268,7 @@ public class BonsaiPotTileEntity extends BaseTileEntity {
             this.updateInfoObjects();
         }
 
-        List<ItemStack> drops = this.saplingInfo.getRandomizedDrops(this.world.rand);
+        List<ItemStack> drops = this.saplingInfo.getRandomizedDrops(this.level.random);
         for(ItemStack stack : drops) {
             this.spawnItem(stack);
         }
@@ -276,6 +276,6 @@ public class BonsaiPotTileEntity extends BaseTileEntity {
 
     @Override
     public AxisAlignedBB getRenderBoundingBox() {
-        return new AxisAlignedBB(this.getPos()).grow(1.0d).expand(0.0d, 1.0d, 0.0d);
+        return new AxisAlignedBB(this.getBlockPos()).inflate(1.0d).expandTowards(0.0d, 1.0d, 0.0d);
     }
 }

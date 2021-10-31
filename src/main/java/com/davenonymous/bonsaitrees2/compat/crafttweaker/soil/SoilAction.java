@@ -14,7 +14,7 @@ public abstract class SoilAction implements IRuntimeAction {
     public SoilAction(String soilId) {
         this.soilId = soilId;
 
-        ResourceLocation soilResource = ResourceLocation.tryCreate(soilId);
+        ResourceLocation soilResource = ResourceLocation.tryParse(soilId);
         this.soil = ModObjects.soilRecipeHelper.getRecipe(CTCraftingTableManager.recipeManager, soilResource);
     }
 

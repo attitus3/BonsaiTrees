@@ -22,7 +22,7 @@ public class SaplingActionCreate implements IRuntimeAction {
         this.baseTicks = baseTicks;
         this.tags = tags;
 
-        this.sapling = new SaplingInfo(ResourceLocation.tryCreate(id), ingredient.asVanillaIngredient(), baseTicks);
+        this.sapling = new SaplingInfo(ResourceLocation.tryParse(id), ingredient.asVanillaIngredient(), baseTicks);
         for(String tag : tags) {
             this.sapling.addTag(tag);
         }

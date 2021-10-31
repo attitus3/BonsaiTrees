@@ -25,7 +25,7 @@ public class ModelPanel extends WidgetPanel {
         super();
         this.setSize(width, height);
 
-        WidgetTextBox modelPanelLabel = new WidgetTextBox(I18n.format("bonsaitrees.gui.tree_creator.label.preview", model.getBlockCount()), 0xFF808080);
+        WidgetTextBox modelPanelLabel = new WidgetTextBox(I18n.get("bonsaitrees.gui.tree_creator.label.preview", model.getBlockCount()), 0xFF808080);
         modelPanelLabel.setDimensions(0, 0, width-10, 9);
         this.add(modelPanelLabel);
 
@@ -33,7 +33,7 @@ public class ModelPanel extends WidgetPanel {
         modelRenderWidget.setDimensions(32, 20, 74, 74);
         this.add(modelRenderWidget);
 
-        WidgetTextBox blockTypesLabel = new WidgetTextBox(I18n.format("bonsaitrees.gui.tree_creator.label.blocktypes", model.refMap.size()), 0xFF808080);
+        WidgetTextBox blockTypesLabel = new WidgetTextBox(I18n.get("bonsaitrees.gui.tree_creator.label.blocktypes", model.refMap.size()), 0xFF808080);
         blockTypesLabel.setDimensions(0, 120, width-40, 9);
         this.add(blockTypesLabel);
 
@@ -55,8 +55,8 @@ public class ModelPanel extends WidgetPanel {
             BlockStateListEntry listEntry = new BlockStateListEntry(state, count, width-12);
             listEntry.deleteIcon.addListener(MouseClickEvent.class, (event, widget) -> {
                 model.removeBlockState(state);
-                modelPanelLabel.setText(I18n.format("bonsaitrees.gui.tree_creator.label.preview", model.getBlockCount()));
-                blockTypesLabel.setText(I18n.format("bonsaitrees.gui.tree_creator.label.blocktypes", model.refMap.size()));
+                modelPanelLabel.setText(I18n.get("bonsaitrees.gui.tree_creator.label.preview", model.getBlockCount()));
+                blockTypesLabel.setText(I18n.get("bonsaitrees.gui.tree_creator.label.blocktypes", model.refMap.size()));
                 blockTypesList.remove(listEntry);
                 blockTypesList.scrollUp();
                 this.updateWarningIcon(model);

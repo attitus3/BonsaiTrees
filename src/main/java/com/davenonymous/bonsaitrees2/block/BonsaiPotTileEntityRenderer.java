@@ -238,7 +238,7 @@ public class BonsaiPotTileEntityRenderer extends TileEntityRenderer<BonsaiPotTil
             return;
         }
 
-        matrix.push();
+        matrix.pushPose();
         matrix.translate(0.5f, 0.0f, 0.5f);
 
         // Translate up a bit, so we actually grow out of the bonsai pot, not through it
@@ -256,16 +256,16 @@ public class BonsaiPotTileEntityRenderer extends TileEntityRenderer<BonsaiPotTil
         matrix.scale(progress, progress, progress);
 
         float rotate = tile.modelRotation * 90.0f;
-        matrix.rotate(Vector3f.YP.rotationDegrees(rotate));
+        matrix.mulPose(Vector3f.YP.rotationDegrees(rotate));
 
         float translateOffsetX = (float)(model.width+1) / 2.0f;
         float translateOffsetY = 0.0f;
         float translateOffsetZ = (float)(model.depth+1) / 2.0f;
         matrix.translate(-translateOffsetX, -translateOffsetY, -translateOffsetZ);
 
-        MultiblockBlockModelRenderer.renderModel(model, matrix, buffer, combinedLightIn, combinedOverlayIn, tile.getWorld(), tile.getPos());
+        MultiblockBlockModelRenderer.renderModel(model, matrix, buffer, combinedLightIn, combinedOverlayIn, tile.getLevel(), tile.getBlockPos());
 
-        matrix.pop();
+        matrix.popPose();
     }
 
     private void renderSoil(BonsaiPotTileEntity tile, float partialTicks, MatrixStack matrix, IRenderTypeBuffer buffer, int combinedLightIn, int combinedOverlayIn) {
@@ -273,15 +273,15 @@ public class BonsaiPotTileEntityRenderer extends TileEntityRenderer<BonsaiPotTil
             return;
         }
 
-        BlockRendererDispatcher brd = Minecraft.getInstance().getBlockRendererDispatcher();
+        BlockRendererDispatcher brd = Minecraft.getInstance().getBlockRenderer();
 
-        matrix.push();
+        matrix.pushPose();
         matrix.scale(1 / 16.0f, 1 / 16.0f, 1 / 16.0f);
         matrix.translate(2.0d, 1.1d, 2.0d);
         matrix.scale(12.0f, 1.0f, 12.0f);
 
-        brd.renderModel(tile.getSoilBlockState(), tile.getPos(), tile.getWorld(), matrix, buffer.getBuffer(RenderType.getCutoutMipped()), false, tile.getWorld().rand, EmptyModelData.INSTANCE);
+        brd.renderModel(tile.getSoilBlockState(), tile.getBlockPos(), tile.getLevel(), matrix, buffer.getBuffer(RenderType.cutoutMipped()), false, tile.getLevel().random, EmptyModelData.INSTANCE);
 
-        matrix.pop();
+        matrix.popPose();
     }
 }
