@@ -5,7 +5,6 @@ import com.davenonymous.bonsaitrees2.block.BonsaiPotTileEntityRenderer;
 import com.davenonymous.bonsaitrees2.config.Config;
 import com.davenonymous.bonsaitrees2.gui.TreeCreatorScreen;
 import com.davenonymous.bonsaitrees2.render.TreeModels;
-import com.davenonymous.libnonymous.gui.config.WidgetGuiConfig;
 import com.davenonymous.libnonymous.setup.IProxy;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ScreenManager;
@@ -23,10 +22,6 @@ public class ProxyClient implements IProxy {
 
         TreeModels.init();
         ScreenManager.register(Registration.TREE_CREATOR_CONTAINER.get(), TreeCreatorScreen::new);
-
-        ModList.get().getModContainerById(BonsaiTrees2.MODID).ifPresent(c -> c.registerExtensionPoint(ExtensionPoint.CONFIGGUIFACTORY, () -> (mc, parent) -> {
-            return new WidgetGuiConfig(parent, Config.COMMON_CONFIG, Config.CLIENT_CONFIG);
-        }));
     }
 
     @Override
